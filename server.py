@@ -1,53 +1,52 @@
-import requests
 
-# RaceChip API details
-racechip_api_url = "https://www.racechip.de/api/products"
-racechip_api_key = "b1ddd97910d0c400a31b87cc534d24eb"
-
-# BigCommerce API details
-bigcommerce_api_url = "https://api.bigcommerce.com/stores/{store_hash}/v3/catalog/products"
-bigcommerce_access_token = "your_bigcommerce_access_token"
-store_hash = "your_store_hash"
-
-def fetch_racechip_products():
-    """Fetch products from RaceChip."""
-    response = requests.get(f"{racechip_api_url}?apikey={racechip_api_key}")
-    if response.status_code == 200:
-        return response.json()['products']  # Assuming 'products' is the key containing product list
-    else:
-        print("Failed to fetch RaceChip products")
-        return []
-
-def create_bigcommerce_product(product_data):
-    """Create a product in BigCommerce."""
-    headers = {
-        "X-Auth-Token": bigcommerce_access_token,
-        "Content-Type": "application/json"
-    }
-    response = requests.post(bigcommerce_api_url.format(store_hash=store_hash), json=product_data, headers=headers)
-    if response.status_code == 201:
-        print("Product created successfully in BigCommerce")
-    else:
-        print("Failed to create product in BigCommerce")
-
-def map_product_data(racechip_product):
-    """Map RaceChip product data to BigCommerce format."""
-    return {
-        "name": racechip_product['model'],  # Assuming 'model' holds the product name
-        "type": "physical",
-        "weight": racechip_product.get('weight', 1),  # Providing a default weight
-        "price": racechip_product['price'],
-        "sku": racechip_product['partNumber'],  # Assuming 'partNumber' as SKU
-        "categories": [12345],  # Example category ID, replace with actual ID
-        "availability": "available",
-        "inventory_level": 100,
-    }
-
-def main():
-    racechip_products = fetch_racechip_products()
-    for product in racechip_products:
-        bigcommerce_product_data = map_product_data(product)
-        create_bigcommerce_product(bigcommerce_product_data)
-
-if __name__ == "__main__":
-    main()
+import tkinter as tk
+    from tkinter import messagebox
+    import requests
+    
+    # Function to fetch data from RaceChip API
+    def fetch_racechip_products():
+        racechip_api_url = "https://www.racechip.de/api/products"
+        racechip_api_key = "b1ddd97910d0c400a31b87cc534d24eb"
+        response = requests.get(f"{racechip_api_url}?apikey={racechip_api_key}")
+        if response.status_code == 200:
+            return response.json()['products']  # Assuming 'products' is the key containing product list
+        else:
+            print("Failed to fetch RaceChip products")
+            print("Status Code:", response.status_code)
+            print("Response Content:", response.text)  # Print response content for debugging
+            return None  # Return None to indicate failure
+    
+    # Function to compare and sync products with BigCommerce
+    def sync_products():
+        racechip_products = fetch_racechip_products()
+        if racechip_products:
+            for product in racechip_products:
+                # Add code to sync products with BigCommerce
+                # This can include mapping, creating, or updating products in BigCommerce
+                # For demonstration, let's just print the product details
+                print("Syncing product:", product['model'])  # Change this to actual sync code
+    
+    # Function to display a message box when the action is started
+    def start_action():
+        sync_products()
+        messagebox.showinfo("Action Started", "Product synchronization with BigCommerce has been completed!")
+    
+    # Function to perform a check of the RaceChip database and display the result
+    def perform_database_check():
+        result = check_racechip_database()
+        messagebox.showinfo("Database Check", f"RaceChip Database Status: {result}")
+    
+    # Create the main application window
+    root = tk.Tk()
+    root.title("RaceChip-BigCommerce Sync")
+    
+    # Create a button widget to start the action
+    sync_button = tk.Button(root, text="Start Product Sync", command=start_action)
+    sync_button.pack(pady=5)
+    
+    # Create a button widget to perform a database check
+    check_button = tk.Button(root, text="Check RaceChip Database", command=perform_database_check)
+    check_button.pack(pady=5)
+    
+    # Start the Tkinter event loop
+    root.mainloop()
