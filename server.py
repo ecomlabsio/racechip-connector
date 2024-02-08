@@ -1,8 +1,8 @@
 import requests
 import logging
 
-# Configure logging
-logging.basicConfig(filename='sync_log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging to display messages in the console
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # RaceChip API details
 racechip_api_url = "https://www.racechip.de/api/products"
@@ -20,8 +20,7 @@ def fetch_racechip_products():
         response.raise_for_status()  # Raise an error for non-200 status codes
         return response.json()['products']  # Assuming 'products' is the key containing product list
     except requests.exceptions.RequestException as e:
-        error_msg = f"Failed to fetch RaceChip products: {str(e)}"
-        logging.error(error_msg)
+        logging.error("Failed to fetch RaceChip products: %s", str(e))
         return []
 
 def create_bigcommerce_product(product_data):
