@@ -5,20 +5,20 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # RaceChip API details
-racechip_api_url = "https://www.racechip.de/reseller_api/v3/products"
+racechip_api_url = "https://www.racechip.de/reseller_api/v3/product"
 racechip_api_key = "b1ddd97910d0c400a31b87cc534d24eb"
 
 # BigCommerce API details
 bigcommerce_api_url = "https://api.bigcommerce.com/stores/{store_hash}/v3/catalog/products"
-bigcommerce_access_token = "your_bigcommerce_access_token"
-store_hash = "your_store_hash"
+bigcommerce_access_token = "bemqw95yr8h3ynb4v7ju0casco51ebn"
+store_hash = "co0icmrzz6"
 
 def fetch_racechip_products():
     """Fetch products from RaceChip."""
     try:
         response = requests.get(f"{racechip_api_url}?apikey={racechip_api_key}")
         response.raise_for_status()  # Raise an error for non-200 status codes
-        return response.json()['products']  # Assuming 'products' is the key containing product list
+        return response.json()['product']  # Assuming 'products' is the key containing product list
     except requests.exceptions.RequestException as e:
         logging.error("Failed to fetch RaceChip products: %s", str(e))
         return []
