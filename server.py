@@ -1,58 +1,55 @@
 import requests
+import pandas as pd
 import logging
 
-# Configure logging to display messages in the console
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# RaceChip API details
-racechip_api_url = "https://www.racechip.de/reseller_api/v3/product"
-racechip_api_key = "b1ddd97910d0c400a31b87cc534d24eb"
+# API key and base URL setup
+API_KEY = 'b1ddd97910d0c400a31b87cc534d24eb'
+BASE_URL = 'https://www.racechip.de/reseller_api/v3'
 
-# BigCommerce API details
-bigcommerce_api_url = "https://api.bigcommerce.com/stores/{store_hash}/v3/catalog/products"
-bigcommerce_access_token = "bemqw95yr8h3ynb4v7ju0casco51ebn"
-store_hash = "co0icmrzz6"
-
-def fetch_racechip_products():
-    """Fetch products from RaceChip."""
-    try:
-        response = requests.get(f"{racechip_api_url}?apikey={racechip_api_key}")
-        response.raise_for_status()  # Raise an error for non-200 status codes
-        return response.json()['product']  # Assuming 'products' is the key containing product list
-    except requests.exceptions.RequestException as e:
-        logging.error("Failed to fetch RaceChip products: %s", str(e))
+def fetch_manufacturers():
+    url = f"{BASE_URL}/manufacturer?apikey={API_KEY}"
+    logging.info(f"Fetching manufacturers from {url}")
+    response = requests.get(url)
+    if response.status_code == 200:
+        manufacturers = response.json()
+        logging.info(f"Found {len(manufacturers)} manufacturers")
+        return manufacturers
+    else:
+        logging.error(f"Failed to fetch manufacturers: {response.status_code}")
         return []
 
-def create_bigcommerce_product(product_data):
-    """Create a product in BigCommerce."""
-    headers = {
-        "X-Auth-Token": bigcommerce_access_token,
-        "Content-Type": "application/json"
-    }
-    response = requests.post(bigcommerce_api_url.format(store_hash=store_hash), json=product_data, headers=headers)
-    if response.status_code == 201:
-        print("Product created successfully in BigCommerce")
+def fetch_models(manufacturer_id):
+    url = f"{BASE_URL}/models?manufacturer_id={manufacturer_id}&apikey={API_KEY}"
+    logging.info(f"Fetching models for manufacturer_id {manufacturer_id}")
+    response = requests.get(url)
+    if response.status_code == 200:
+        models = response.json()
+        logging.info(f"Found {len(models)} models for manufacturer_id {manufacturer_id}")
+        return models
     else:
-        print("Failed to create product in BigCommerce")
-
-def map_product_data(racechip_product):
-    """Map RaceChip product data to BigCommerce format."""
-    return {
-        "name": racechip_product['model'],  # Assuming 'model' holds the product name
-        "type": "physical",
-        "weight": racechip_product.get('weight', 1),  # Providing a default weight
-        "price": racechip_product['price'],
-        "sku": racechip_product['partNumber'],  # Assuming 'partNumber' as SKU
-        "categories": [12345],  # Example category ID, replace with actual ID
-        "availability": "available",
-        "inventory_level": 100,
-    }
+        logging.error(f"Failed to fetch models for manufacturer_id {manufacturer_id}: {response.status_code}")
+        return []
 
 def main():
-    racechip_products = fetch_racechip_products()
-    for product in racechip_products:
-        bigcommerce_product_data = map_product_data(product)
-        create_bigcommerce_product(bigcommerce_product_data)
+    logging.info("Starting to fetch RaceChip product data")
+    manufacturers = fetch_manufacturers()
+    all_data = []
+
+    for manufacturer in manufacturers:
+        # For simplicity, only manufacturer fetching is shown
+        # Extend this loop to fetch models, motors, and products as needed
+        all_data.append({'Manufacturer': manufacturer['name'], 'Manufacturer ID': manufacturer['id']})
+        # Placeholder for additional fetching
+
+    # Convert list to DataFrame
+    df = pd.DataFrame(all_data)
+    
+    # Save to CSV
+    df.to_csv('racechip_products.csv', index=False)
+    logging.info("Data fetching complete and saved to racechip_products.csv")
 
 if __name__ == "__main__":
     main()
