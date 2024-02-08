@@ -2,7 +2,7 @@ import requests
 
 # RaceChip API details
 racechip_api_url = "https://www.racechip.de/api/products"
-racechip_api_key = "your_racechip_api_key"
+racechip_api_key = "b1ddd97910d0c400a31b87cc534d24eb"
 
 # BigCommerce API details
 bigcommerce_api_url = "https://api.bigcommerce.com/stores/{store_hash}/v3/catalog/products"
