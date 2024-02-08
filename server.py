@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # RaceChip API details
-racechip_api_url = "https://www.racechip.de/api/products"
+racechip_api_url = "https://www.racechip.de/reseller_api/v3/products"
 racechip_api_key = "b1ddd97910d0c400a31b87cc534d24eb"
 
 # BigCommerce API details
