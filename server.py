@@ -14,39 +14,40 @@ def fetch_manufacturers():
     logging.info(f"Fetching manufacturers from {url}")
     response = requests.get(url)
     if response.status_code == 200:
-        manufacturers = response.json()
-        logging.info(f"Found {len(manufacturers)} manufacturers")
-        return manufacturers
+        try:
+            manufacturers = response.json()
+            logging.info(f"Successfully fetched {len(manufacturers)} manufacturers")
+            return manufacturers
+        except ValueError as e:
+            logging.error(f"Error parsing JSON: {e}")
+            return []
     else:
-        logging.error(f"Failed to fetch manufacturers: {response.status_code}")
-        return []
-
-def fetch_models(manufacturer_id):
-    url = f"{BASE_URL}/models?manufacturer_id={manufacturer_id}&apikey={API_KEY}"
-    logging.info(f"Fetching models for manufacturer_id {manufacturer_id}")
-    response = requests.get(url)
-    if response.status_code == 200:
-        models = response.json()
-        logging.info(f"Found {len(models)} models for manufacturer_id {manufacturer_id}")
-        return models
-    else:
-        logging.error(f"Failed to fetch models for manufacturer_id {manufacturer_id}: {response.status_code}")
+        logging.error(f"Failed to fetch manufacturers: HTTP {response.status_code}")
         return []
 
 def main():
     logging.info("Starting to fetch RaceChip product data")
     manufacturers = fetch_manufacturers()
+
+    if manufacturers:
+        logging.info(f"Example manufacturer data: {manufacturers[0]}")
+    else:
+        logging.error("No manufacturers data fetched. Exiting.")
+        return
+
     all_data = []
 
     for manufacturer in manufacturers:
-        # For simplicity, only manufacturer fetching is shown
-        # Extend this loop to fetch models, motors, and products as needed
-        all_data.append({'Manufacturer': manufacturer['name'], 'Manufacturer ID': manufacturer['id']})
-        # Placeholder for additional fetching
+        # Ensure the manufacturer data is accessed correctly.
+        # Add an explicit check here to handle unexpected data structures.
+        if isinstance(manufacturer, dict) and 'name' in manufacturer and 'id' in manufacturer:
+            all_data.append({'Manufacturer': manufacturer['name'], 'Manufacturer ID': manufacturer['id']})
+        else:
+            logging.warning(f"Unexpected data structure for manufacturer: {manufacturer}")
 
     # Convert list to DataFrame
     df = pd.DataFrame(all_data)
-    
+
     # Save to CSV
     df.to_csv('racechip_products.csv', index=False)
     logging.info("Data fetching complete and saved to racechip_products.csv")
