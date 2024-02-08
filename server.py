@@ -16,34 +16,23 @@ def fetch_manufacturers():
     if response.status_code == 200:
         try:
             manufacturers = response.json()
-            logging.info(f"Successfully fetched {len(manufacturers)} manufacturers")
+            logging.info(f"Successfully fetched manufacturers")
             return manufacturers
         except ValueError as e:
             logging.error(f"Error parsing JSON: {e}")
-            return []
+            return {}
     else:
         logging.error(f"Failed to fetch manufacturers: HTTP {response.status_code}")
-        return []
+        return {}
 
 def main():
     logging.info("Starting to fetch RaceChip product data")
     manufacturers = fetch_manufacturers()
 
-    if manufacturers:
-        logging.info(f"Example manufacturer data: {manufacturers[0]}")
-    else:
-        logging.error("No manufacturers data fetched. Exiting.")
-        return
-
     all_data = []
 
-    for manufacturer in manufacturers:
-        # Ensure the manufacturer data is accessed correctly.
-        # Add an explicit check here to handle unexpected data structures.
-        if isinstance(manufacturer, dict) and 'name' in manufacturer and 'id' in manufacturer:
-            all_data.append({'Manufacturer': manufacturer['name'], 'Manufacturer ID': manufacturer['id']})
-        else:
-            logging.warning(f"Unexpected data structure for manufacturer: {manufacturer}")
+    for manufacturer_id, manufacturer_name in manufacturers.items():
+        all_data.append({'Manufacturer ID': manufacturer_id, 'Manufacturer': manufacturer_name})
 
     # Convert list to DataFrame
     df = pd.DataFrame(all_data)
